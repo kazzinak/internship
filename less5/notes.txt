@@ -1,0 +1,7 @@
+HW
+
+* generate Fibonacci -> channel -> 2 channels
+
+-> file
+-> stdout
+

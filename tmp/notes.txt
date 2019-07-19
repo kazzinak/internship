@@ -1,0 +1,8 @@
+* concurrency vs parallelism
+* threads vs processes vs goroutines
+
+* defer
+
+* how memory in channels
+
+* buffered channels
