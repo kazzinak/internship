@@ -2,42 +2,63 @@ package main
 
 import (
 	"fmt"
+	"os"
 	"sync"
-	"time"
 )
 
-var a []int = []int{}
-
 func main() {
-	// fmt.Println("hello")
-	// ch := make(chan int)
-	// ch2 := make(chan int)
-	// select {
-	// case b := <-ch2:
-	// 	fmt.Println("read from", b)
-	// case x := <-ch:
-	// 	fmt.Println("read from", x)
-	// default:
-	// 	fmt.Println("default")
-	// }
-	var mu sync.Mutex
-	var muOnce sync.Once
 	var wg sync.WaitGroup
-
-	wg.Add(1)
-	wg.Done()
-
-	for i := 0; i < 10; i++ {
-		go func(k int) {
-			defer wg.Done()
-			mu.Lock()
-			a = append(a, k)
-			mu.Unlock()
-		}(i)
-		muOnce.Do(func() {
-			fmt.Println("only once")
-		})
+	f, err := os.OpenFile("output.txt", os.O_CREATE|os.O_RDWR|os.O_APPEND, 0644)
+	if err != nil {
+		panic(err)
 	}
-	time.Sleep(1 * time.Second)
-	fmt.Println(a)
+	defer f.Close()
+
+	n := 10
+
+	ch := make(chan int)
+	stdoutCh := make(chan int)
+	fCh := make(chan int)
+
+	go fibonacci(n, ch)
+	// for i := range ch {
+
+	// 	fmt.Println(i)
+	// }
+	for i := 0; i < n; i++ {
+		wg.Add(1)
+
+		x := <-ch
+		fmt.Println(x)
+		stdoutCh <- x
+		fCh <- x
+	}
+	wg.Wait()
+	// for i := range stdoutCh {
+	// 	// fmt.Println(<-stdoutCh)
+	// 	fmt.Println(i)
+	// 	wg.Done()
+	// }
+	// for res := range fCh {
+	// 	f.WriteString(string(res))
+	// }
+	fmt.Println("hello")
+	wg.Wait()
+
+}
+
+func fibonacci(n int, ch chan int) {
+	res := 0
+	x := 0
+	y := 1
+	// if n == 0 || n == 1 {
+	// 	ch <- n
+	// }
+	for i := 0; i <= n; i++ {
+		ch <- x
+		res = x + y
+		x = y
+		y = res
+	}
+	close(ch)
 }
