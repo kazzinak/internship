@@ -10,6 +10,7 @@ import (
 type letters map[rune]int
 
 func main() {
+	var wg sync.WaitGroup
 
 	var lines []string
 

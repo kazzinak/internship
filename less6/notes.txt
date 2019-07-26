@@ -1,0 +1,6 @@
+* bufio
+*
+
+* hw
+
+100Mb file -> write to console -> file. by bulk 256K in one second
