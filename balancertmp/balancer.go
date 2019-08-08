@@ -1,8 +1,8 @@
 package main
 
 import (
-	"bytes"
-	// "fmt"
+	// "bytes"
+	"fmt"
 	"github.com/gorilla/mux"
 	"io/ioutil"
 	"log"
@@ -21,14 +21,6 @@ func runBalancer() error {
 
 func balancerHandler(w http.ResponseWriter, req *http.Request) {
 
-	body, err := ioutil.ReadAll(req.Body)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	req.Body = ioutil.NopCloser(bytes.NewReader(body))
-
 	var randomBackend int
 	if config.ProxyMethod == "round-robin" {
 		randomBackend = rand.Intn(len(config.Backends))
@@ -36,13 +28,12 @@ func balancerHandler(w http.ResponseWriter, req *http.Request) {
 	}
 	url := config.Backends[randomBackend]
 
-	proxyReq, err := http.NewRequest(req.Method, url, bytes.NewReader(body))
-	proxyReq.Header = make(http.Header)
-	for h, val := range req.Header {
-		proxyReq.Header[h] = val
-	}
+	fmt.Println(url)
+
+	proxyReq, err := http.NewRequest(req.Method, url, req.Body)
 
 	client := http.Client{}
+
 	resp, err := client.Do(proxyReq)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadGateway)
@@ -50,12 +41,10 @@ func balancerHandler(w http.ResponseWriter, req *http.Request) {
 	}
 	defer resp.Body.Close()
 
-	// legacy code
-	respBody, err := ioutil.ReadAll(req.Body)
+	respBody, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	w.Write([]byte(respBody))
 
+	w.Write([]byte(respBody))
 }
