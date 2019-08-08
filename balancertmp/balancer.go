@@ -2,7 +2,7 @@ package main
 
 import (
 	"bytes"
-	"fmt"
+	// "fmt"
 	"github.com/gorilla/mux"
 	"io/ioutil"
 	"log"
@@ -51,6 +51,11 @@ func balancerHandler(w http.ResponseWriter, req *http.Request) {
 	defer resp.Body.Close()
 
 	// legacy code
-	w.Write([]byte(resp.Body))
+	respBody, err := ioutil.ReadAll(req.Body)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.Write([]byte(respBody))
 
 }
