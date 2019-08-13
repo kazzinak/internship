@@ -1,6 +1,7 @@
 package main
 
 import (
+	// "bytes"
 	"encoding/json"
 	"fmt"
 	"github.com/urfave/cli"
@@ -10,13 +11,19 @@ import (
 )
 
 type balancerConfig struct {
-	NetworkInterface string   `json:"interface"`
-	Upstream         string   `json:"upstream"`
-	HttpPath         string   `json:"path"`
-	HttpMethods      []string `json:"methods"`
-	Backends         []string `json:"backends"`
-	ProxyMethod      string   `json:"proxyMethod"`
+	NetworkInterface string     `json:"interface"`
+	Upstreams        []upstream `json:"upstreams`
 }
+type upstream struct {
+	HttpPath    string       `json:"path"`
+	HttpMethods []HttpMethod `json:"methods"`
+	Backends    []Backend    `json:"backend"`
+	ProxyMethod string       `json:"proxyMethod"`
+}
+
+type Backend string
+
+type HttpMethod string
 
 var (
 	version        = "0.1"
@@ -53,6 +60,19 @@ func main() {
 	}
 }
 
+func configParser(configFile *os.File) error {
+
+	b, err := ioutil.ReadAll(configFile)
+	if err != nil {
+		return err
+	}
+
+	json.Unmarshal([]byte(b), &config)
+	fmt.Println(config)
+
+	return nil
+}
+
 func run(c *cli.Context) error {
 
 	if c.NumFlags() < 1 {
@@ -72,17 +92,4 @@ func run(c *cli.Context) error {
 	err = runBalancer()
 
 	return err
-}
-
-func configParser(configFile *os.File) error {
-
-	b, err := ioutil.ReadAll(configFile)
-	if err != nil {
-		return err
-	}
-
-	json.Unmarshal([]byte(b), &config)
-	fmt.Println(config)
-
-	return nil
 }

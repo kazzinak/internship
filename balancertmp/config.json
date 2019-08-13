@@ -1,8 +1,0 @@
-{
-    "interface": ":8080",
-    "upstream": "example",
-    "path": "/example",
-    "methods": ["GET"],
-    "backends": ["http://172.17.0.2", "http://172.17.0.3"],
-    "proxyMethod": "round-robin"
-}

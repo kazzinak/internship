@@ -12,7 +12,7 @@ import (
 
 func runBalancer() error {
 	r := mux.NewRouter()
-	r.HandleFunc(config.HttpPath, balancerHandler)
+	r.HandleFunc(config.HttpPaths, balancerHandler)
 	// r.HandleFunc(config.HttpPath, handler)
 
 	log.Fatal(http.ListenAndServe(config.NetworkInterface, r))

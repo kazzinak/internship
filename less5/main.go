@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	wg := sync.WaitGroup{}
+	wg := &sync.WaitGroup{}
 	f, err := os.OpenFile("output.txt", os.O_CREATE|os.O_RDWR|os.O_APPEND, 0644)
 	if err != nil {
 		panic(err)
@@ -49,6 +49,7 @@ func fibonacci(n int, ch chan int) {
 		x = y
 		y = res
 	}
+	close(ch)
 }
 
 func writeToFile(fileCh <-chan int, f *os.File, wg sync.WaitGroup) {
@@ -56,7 +57,7 @@ func writeToFile(fileCh <-chan int, f *os.File, wg sync.WaitGroup) {
 	defer wg.Done()
 }
 
-func printStdout(x int, wg sync.WaitGroup) {
+func printStdout(x int, wg *sync.WaitGroup) {
 	// for i := 0; i < n; i++ {
 	// 	fmt.Println(<-stdoutCh)
 	// 	// defer wg.Done()
